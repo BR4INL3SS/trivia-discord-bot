@@ -4,7 +4,8 @@
   "main": "./prod/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc"
+    "build": "tsc",
+    "commands": "node dist/deployCommands.js"
   },
   "author": "Mehdi Hyani <m.hyani@aui.ma>",
   "license": "MIT",
