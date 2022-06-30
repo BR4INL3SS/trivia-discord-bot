@@ -1,6 +1,10 @@
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+![GitHub repo file count](https://img.shields.io/github/directory-file-count/BR4INL3SS/trivia-discord-bot)
+![GitHub issues](https://img.shields.io/github/issues/BR4INL3SS/trivia-discord-bot)
+![GitHub](https://img.shields.io/github/license/BR4INL3SS/trivia-discord-bot)
 # Discord Trivia Bot
 
-Wholesome Dicord bot for trivia games in your servers 
+Wholesome Discord bot for trivia games in your servers 
 
 ## Table of Contents
 
