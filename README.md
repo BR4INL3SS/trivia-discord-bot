@@ -129,4 +129,4 @@ discordClient.on(
 * [Code of Conduct](https://github.com/axios/axios/blob/master/CODE_OF_CONDUCT.md) -->
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.md)
