@@ -1,6 +1,6 @@
 # Discord Trivia Bot
 
-Wholesome Dsicord bot for your trivia games in your servers 
+Wholesome Dicord bot for trivia games in your servers 
 
 ## Table of Contents
 
@@ -12,7 +12,7 @@ Wholesome Dsicord bot for your trivia games in your servers
 
 ## Features
 
-There will be more features in the future but for new here are the features:
+There will be more features in the future but for now here are the features:
 - Trivia Games on your server and saved to a mongodb database
 - Trivia leaderboards using prisma aggregations
 
@@ -50,7 +50,7 @@ CLIENT_ID = # Discord bot client ID
 DATABASE_URL= # YOUR DATABASE URL HERE
 ```
 
-Deploy commands to your bot pnpm:
+Deploy commands to your bot:
 
 ```bash
 $ yarn run commands
