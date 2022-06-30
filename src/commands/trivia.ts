@@ -1,34 +1,30 @@
 import {
-  EmbedBuilder,
   SlashCommandBuilder,
-  userMention,
-} from "@discordjs/builders";
-import { Prisma } from "@prisma/client";
-import axios from "axios";
+  userMention
+} from '@discordjs/builders';
+import { Prisma } from '@prisma/client';
+import axios from 'axios';
 import {
   CacheType,
   CommandInteraction,
   CommandInteractionOptionResolver,
-  CommandOptionChoiceResolvableType,
-  Emoji,
   MessageEmbed,
   MessageReaction,
-  User,
-} from "discord.js";
+  User
+} from 'discord.js';
 import {
-  createTriviaGame,
-  getLeaderboards as getLeaderboardsPrisma,
-} from "../db/triviaGames";
+  createTriviaGame
+} from '../db/triviaGames';
 import {
   categories,
   difficulties,
   emojiOptions,
   leaderboardEmojis,
-  pointsPreCorrectAnswer,
-} from "../utils/constants";
-import { shuffle } from "../utils/helpers";
+  pointsPreCorrectAnswer
+} from '../utils/constants';
+import { shuffle } from '../utils/helpers';
 // @ts-ignore
-import { decode } from "html-entities";
+import { decode } from 'html-entities';
 
 const getCategory = (id: string) => {
   return Object.keys(categories).filter(
@@ -45,7 +41,7 @@ interface ApiQuestions {
   incorrect_answers: string[];
 }
 
-async function allSynchronously<T>(
+async function allSynchronously<T> (
   resolvables: (() => Promise<T>)[]
 ): Promise<T[]> {
   const results = [];
@@ -59,19 +55,19 @@ export const startTrivia = async (
   interaction: CommandInteraction,
   options: Omit<
     CommandInteractionOptionResolver<CacheType>,
-    "getMessage" | "getFocused"
+    'getMessage' | 'getFocused'
   >
 ): Promise<any> => {
   try {
     const channel = interaction.channel!;
 
-    const difficulty = options.getString("difficulty", true);
-    const category = options.getString("category", true);
-    const amount = options.getInteger("questions", true);
+    const difficulty = options.getString('difficulty', true);
+    const category = options.getString('category', true);
+    const amount = options.getInteger('questions', true);
 
     await interaction.reply({
-      content: `You got it boss.`,
-      ephemeral: true,
+      content: 'You got it boss.',
+      ephemeral: true
     });
 
     const joiningMessage = await channel.send(
@@ -82,15 +78,15 @@ export const startTrivia = async (
       )}**. React by :raised_hand: to join. (30 seconds) (${amount} questions)`
     );
 
-    await joiningMessage?.react("✋"); // UX purposes
+    await joiningMessage?.react('✋'); // UX purposes
 
     const filterJoiningReactions = (reaction: MessageReaction, user: User) => {
-      return "✋" === reaction.emoji.name && !user.bot;
+      return reaction.emoji.name === '✋' && !user.bot;
     };
 
     const joiningReactions = await joiningMessage?.awaitReactions({
       filter: filterJoiningReactions,
-      time: 30000,
+      time: 30000
     });
 
     if (joiningReactions) {
@@ -105,17 +101,17 @@ export const startTrivia = async (
       const joinedMessage = await channel.send(
         `Time is up: Participating players: ${players!.reduce(
           (prev, current) => `${prev} ${userMention(current)}`,
-          ""
+          ''
         )}`
       );
 
-      const { data } = await axios.get("https://opentdb.com/api.php", {
+      const { data } = await axios.get('https://opentdb.com/api.php', {
         params: {
           amount,
           category: parseInt(category),
           difficulty,
-          type: "multiple",
-        },
+          type: 'multiple'
+        }
       });
 
       const questions = data.results as ApiQuestions[];
@@ -125,12 +121,12 @@ export const startTrivia = async (
         difficulty,
         questions: [],
         scores: players.map((id) => ({ player: id, score: 0 })),
-        winner: "",
+        winner: ''
       };
 
       const filterGameReactions = (reaction: MessageReaction, user: User) => {
         return (
-          emojiOptions.includes(reaction.emoji.name || "") &&
+          emojiOptions.includes(reaction.emoji.name || '') &&
           !user.bot &&
           players.includes(user.id)
         );
@@ -145,7 +141,7 @@ export const startTrivia = async (
           (triviaGame.questions as Prisma.QuestionCreateInput[]).push({
             question: question.question,
             correctAnswer: question.correct_answer,
-            options: shuffledOptions,
+            options: shuffledOptions
           });
           const options: Record<string, string> = {};
 
@@ -160,7 +156,7 @@ export const startTrivia = async (
               ...Object.keys(options).map((option) => ({
                 name: `${options[option]} --> **${decode(option)}**`,
                 value:
-                  "----------------------------------------------------\n\n",
+                  '----------------------------------------------------\n\n'
               }))
             );
 
@@ -171,7 +167,7 @@ export const startTrivia = async (
 
           const questionReactions = await message.awaitReactions({
             filter: filterGameReactions,
-            time: 15000,
+            time: 15000
           });
 
           let winnersIds: string[] = [];
@@ -186,8 +182,8 @@ export const startTrivia = async (
                   .filter(
                     (e) => e.emoji.name === options[question.correct_answer]
                   )
-                  .values(),
-              ][0].users.cache.values(),
+                  .values()
+              ][0].users.cache.values()
             ]
               .map((e) => e.id)
               .filter((e) => e !== joiningMessage.author.id);
@@ -208,10 +204,10 @@ export const startTrivia = async (
               `Time is up: Correct answer was ${decode(
                 question.correct_answer
               )}. ${winnersIds.length} ${
-                winnersIds.length > 1 ? "players" : "player"
+                winnersIds.length > 1 ? 'players' : 'player'
               } got it right! Congrats: ${winnersIds!.reduce(
                 (prev, current) => `${prev} ${userMention(current)}`,
-                ""
+                ''
               )}. +100 points :partying_face::partying_face::partying_face:`
             );
           } else {
@@ -222,7 +218,7 @@ export const startTrivia = async (
             );
           }
 
-          await new Promise((r) => setTimeout(r, 3 * 1000));
+          await new Promise((resolve) => setTimeout(resolve, 3 * 1000));
 
           await messageSent.delete();
           await message.delete();
@@ -240,26 +236,26 @@ export const startTrivia = async (
 
       triviaGame.winner = leaderboard[0].player;
 
-      await channel.send("This was it for this trivia! And the winner is: ...");
+      await channel.send('This was it for this trivia! And the winner is: ...');
 
       const winningEmbed = new MessageEmbed()
-        .setTitle("We got ourselves a winner :chicken::chicken::chicken:")
+        .setTitle('We got ourselves a winner :chicken::chicken::chicken:')
         .setDescription(
           `${leaderboardEmojis[0]} ${userMention(triviaGame.winner)} -- ${
             leaderboard[0].score! / 100
           } answered / ${amount} questions`
         )
         .setImage(
-          "https://c.tenor.com/JhQnqeXuaMoAAAAC/congrats-leonardo-dicaprio.gif"
+          'https://c.tenor.com/JhQnqeXuaMoAAAAC/congrats-leonardo-dicaprio.gif'
         )
         .addFields(
           ...leaderboard
             .slice(1, 3)
             .map((e, index) => ({
-              name: "----------------------",
+              name: '----------------------',
               value: `${leaderboardEmojis[index + 1]} ${userMention(
                 e.player
-              )} -- ${leaderboard[index + 1].score! / 100}/${amount}`,
+              )} -- ${leaderboard[index + 1].score! / 100}/${amount}`
             }))
         );
 
@@ -271,11 +267,11 @@ export const startTrivia = async (
       await createTriviaGame(triviaGame);
     }
   } catch (err) {
-    console.error(`Something went wrong!`);
+    console.error('Something went wrong!');
     console.error(err);
     return await interaction.followUp({
-      content: `Something went wrong!`,
-      ephemeral: true,
+      content: 'Something went wrong!',
+      ephemeral: true
     });
   }
 };
@@ -289,7 +285,7 @@ const getDifficulties = (): Choice[] => {
   return Object.keys(difficulties).map((e) => {
     return {
       name: e,
-      value: difficulties[e as keyof typeof difficulties],
+      value: difficulties[e as keyof typeof difficulties]
     };
   });
 };
@@ -298,32 +294,32 @@ const getCategories = (): Choice[] => {
   return Object.keys(categories).map((cat) => {
     return {
       name: cat,
-      value: (categories[cat as keyof typeof categories] || 0).toString(),
+      value: (categories[cat as keyof typeof categories] || 0).toString()
     };
   });
 };
 
 export default new SlashCommandBuilder()
-  .setName("trivia")
-  .setDescription("Start a trivia game right now")
+  .setName('trivia')
+  .setDescription('Start a trivia game right now')
   .addStringOption((option) =>
     option
-      .setName("category")
-      .setDescription("Select your Trivia category")
+      .setName('category')
+      .setDescription('Select your Trivia category')
       .setRequired(true)
       .addChoices(...getCategories())
   )
   .addStringOption((option) =>
     option
-      .setName("difficulty")
-      .setDescription("Select the trivia difficulty")
+      .setName('difficulty')
+      .setDescription('Select the trivia difficulty')
       .setRequired(true)
       .addChoices(...getDifficulties())
   )
   .addIntegerOption((option) =>
     option
-      .setName("questions")
-      .setDescription("Number of questions")
+      .setName('questions')
+      .setDescription('Number of questions')
       .setRequired(true)
       .setMaxValue(30)
       .setMinValue(1)

@@ -1,14 +1,11 @@
-import { SlashCommandBuilder, userMention } from "@discordjs/builders";
-import { Prisma } from "@prisma/client";
+import { SlashCommandBuilder, userMention } from '@discordjs/builders';
 import {
-  CacheType,
   CommandInteraction,
-  CommandInteractionOptionResolver,
-  MessageEmbed,
-} from "discord.js";
-import { getLeaderboards as getLeaderboardsPrisma } from "../db/triviaGames";
-import { leaderboardEmojis } from "../utils/constants";
-import { discordClient } from "../utils/discord";
+  MessageEmbed
+} from 'discord.js';
+import { getLeaderboards as getLeaderboardsPrisma } from '../db/triviaGames';
+import { leaderboardEmojis } from '../utils/constants';
+import { discordClient } from '../utils/discord';
 
 interface LeaderboardAggregation {
   _id: string;
@@ -20,8 +17,8 @@ export const getLeaderboards = async (interaction: CommandInteraction) => {
     const leaderboard: any = await getLeaderboardsPrisma();
 
     await interaction.reply({
-      content: "Sure! Give me a sec...",
-      ephemeral: true,
+      content: 'Sure! Give me a sec...',
+      ephemeral: true
     });
 
     if (!leaderboard.length) {
@@ -40,34 +37,34 @@ export const getLeaderboards = async (interaction: CommandInteraction) => {
 
     const leaderboardEmbed = new MessageEmbed()
       .setAuthor({
-        name: discordClient.user?.tag.split("#")[0] || "",
-        iconURL: discordClient.user?.avatarURL() || "",
+        name: discordClient.user?.tag.split('#')[0] || '',
+        iconURL: discordClient.user?.avatarURL() || ''
       })
-      .setTitle("Trivia Leaderboard")
+      .setTitle('Trivia Leaderboard')
       .addFields(
         ...leaderboard
           .slice(0, 3)
           .map(({ _id, total }: LeaderboardAggregation, index: number) => ({
-            name: "-".repeat(75),
+            name: '-'.repeat(75),
             value: `${leaderboardEmojis[index]} goes to --> ${userMention(
               _id
-            )} with a total of ${total} game${total > 1 ? "s" : ""} won.`,
+            )} with a total of ${total} game${total > 1 ? 's' : ''} won.`
           }))
       )
-      .setThumbnail(winnerAvatarURL || "")
-      .setColor("RED");
+      .setThumbnail(winnerAvatarURL || '')
+      .setColor('RED');
 
     return await interaction.channel?.send({ embeds: [leaderboardEmbed] });
   } catch (error) {
-    console.error(`Something went wrong!`);
+    console.error('Something went wrong!');
     console.error(error);
     return await interaction.followUp({
-      content: `Something went wrong!`,
-      ephemeral: true,
+      content: 'Something went wrong!',
+      ephemeral: true
     });
   }
 };
 
 export default new SlashCommandBuilder()
-  .setName("trivia_leaderboards")
-  .setDescription("Get current standing of trivia games");
+  .setName('trivia_leaderboards')
+  .setDescription('Get current standing of trivia games');

@@ -1,3 +1,3 @@
-import "./server";
+import './server';
 
-import "./bot";
+import './bot';
